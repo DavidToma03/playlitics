@@ -2,6 +2,9 @@
 
 An interactive dashboard for exploring a synthetic video games dataset (or your own).
 
+# Try it yourself:
+https://playlitics.streamlit.app/
+
 ## Features
 - Sidebar filters: year, genres, platforms, price
 - KPI cards (games, avg metascore, avg user score, median price)
