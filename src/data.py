@@ -10,7 +10,7 @@ import pandas as pd
 
 
 def _seed_from_string(s: str) -> int:
-    """Stable seed from string using SHA256."""
+    """seed from string using SHA256."""
     h = hashlib.sha256(s.encode("utf-8")).hexdigest()
     return int(h[:8], 16)
 
@@ -22,7 +22,7 @@ class DatasetConfig:
 
 
 def generate_games_dataset(cfg: DatasetConfig = DatasetConfig()) -> pd.DataFrame:
-    """Generate a deterministic synthetic games dataset.
+    """Generate a fake games dataset.
 
     Columns:
     - game_id: int
@@ -105,7 +105,7 @@ def generate_games_dataset(cfg: DatasetConfig = DatasetConfig()) -> pd.DataFrame
 
 
 def read_uploaded_csv(file_bytes: bytes) -> pd.DataFrame:
-    """Read a user-uploaded CSV into a DataFrame, with basic normalization."""
+    """read a user-uploaded CSV into a dataframe"""
     bio = io.BytesIO(file_bytes)
     df = pd.read_csv(bio)
     # Attempt to standardize column names if likely aliases are found

@@ -12,7 +12,7 @@ from src.insights import kpis, top_categories, generate_text_insights
 
 st.set_page_config(page_title="Playlitics – Data Storytelling Dashboard", page_icon="🎮", layout="wide")
 
-# Sidebar: data source
+#sidebar
 with st.sidebar:
     st.title("🎮 Playlitics")
     st.caption("Explore a synthetic games dataset or upload your own CSV.")
@@ -22,7 +22,7 @@ with st.sidebar:
     st.divider()
     st.markdown("Filters")
 
-# Load data (with caching)
+#load data
 @st.cache_data(show_spinner=False)
 def load_data(source: str, n_rows: int) -> pd.DataFrame:
     if source == "Synthetic":
@@ -44,7 +44,7 @@ if uploaded is not None:
 else:
     df = load_data(source, n_rows)
 
-# Basic filters
+#filters
 col1, col2, col3 = st.sidebar.columns(3)
 with col1:
     year_min = int(df["release_year"].min()) if "release_year" in df else 2005
@@ -58,7 +58,7 @@ with st.sidebar:
     price_max = float(df["price"].max()) if "price" in df else 120.0
     price_range = st.slider("Max price", 0.0, price_max, price_max)
 
-# Apply filters
+#apply filters
 mask = pd.Series(True, index=df.index)
 if "release_year" in df:
     mask &= df["release_year"].between(year_range[0], year_range[1])
@@ -71,7 +71,7 @@ if "price" in df:
 
 fdf = df[mask].copy()
 
-# Header KPIs
+#header KPIs
 cards = kpis(fdf)
 left, mid, right, extra = st.columns(4)
 left.metric("Games", f"{cards['Games']:,}")
@@ -81,7 +81,7 @@ extra.metric("Median Price", f"${cards['Median Price']:.2f}")
 
 st.divider()
 
-# Charts row 1: Ratings vs Price and Owners over Years
+#charts
 c1, c2 = st.columns([1, 1])
 with c1:
     if {"price", "metascore", "user_score"}.issubset(fdf.columns):
@@ -111,7 +111,7 @@ with c2:
 
 st.divider()
 
-# Charts row 2: Top categories and Hours vs Rating
+#charts
 c3, c4 = st.columns([1, 1])
 with c3:
     if "genre" in fdf:
@@ -136,12 +136,12 @@ with c4:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-# Insights panel
+#insights
 with st.expander("Insights", expanded=True):
     for text in generate_text_insights(fdf):
         st.markdown(f"- {text}")
 
-# Data preview and downloads
+#data preview and download
 st.divider()
 st.subheader("Data preview")
 st.dataframe(fdf.head(50), use_container_width=True)
