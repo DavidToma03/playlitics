@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 import hashlib
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Dict
 
 import numpy as np
 import pandas as pd
@@ -105,18 +105,74 @@ def generate_games_dataset(cfg: DatasetConfig = DatasetConfig()) -> pd.DataFrame
 
 
 def read_uploaded_csv(file_bytes: bytes) -> pd.DataFrame:
-    """read a user-uploaded CSV into a dataframe"""
+    """Read a user-uploaded CSV into a dataframe with light normalization.
+
+    - Trim column whitespace, lower-case for alias detection
+    - Map common aliases to internal names
+    - Coerce numeric fields when possible
+    - Coerce boolean-ish values for is_multiplayer
+    """
     bio = io.BytesIO(file_bytes)
     df = pd.read_csv(bio)
-    # Attempt to standardize column names if likely aliases are found
-    rename_map = {
+
+    #normalise column names
+    original_cols = list(df.columns)
+    lower_map: Dict[str, str] = {str(c): str(c).strip() for c in original_cols}
+    lower_map = {k: v for k, v in lower_map.items()}
+
+    alias_map = {
         "metacritic": "metascore",
+        "meta_score": "metascore",
         "userscore": "user_score",
+        "user score": "user_score",
         "hours": "hours_played",
+        "hoursplayed": "hours_played",
         "owners": "owners_millions",
         "multiplayer": "is_multiplayer",
         "year": "release_year",
+        "release year": "release_year",
     }
-    cols = {c: rename_map.get(c.lower(), c) for c in df.columns}
-    df = df.rename(columns=cols)
+
+    new_cols = {}
+    for c in original_cols:
+        key = str(c).strip()
+        key_lower = key.lower()
+        new_cols[c] = alias_map.get(key_lower, key)
+
+    df = df.rename(columns=new_cols)
+
+    #type coercions for known numeric fields
+    numeric_cols = [
+        "release_year",
+        "price",
+        "metascore",
+        "user_score",
+        "hours_played",
+        "owners_millions",
+    ]
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    #boolean coercion
+    if "is_multiplayer" in df.columns:
+        df["is_multiplayer"] = (
+            df["is_multiplayer"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .map({
+                "true": True,
+                "t": True,
+                "1": True,
+                "yes": True,
+                "y": True,
+                "false": False,
+                "f": False,
+                "0": False,
+                "no": False,
+                "n": False,
+            })
+        )
+
     return df

@@ -11,7 +11,9 @@ https://playlitics.streamlit.app/
 - Charts: price vs metascore scatter (colored by user score), owners by year boxplot, top genres bar, hours vs metascore heatmap
 - Insights panel: 2–3 auto-generated bullet insights from current filters
 - CSV/JSON download for filtered data
-- Upload your own CSV
+- Upload your own CSV (with guidance and a sample CSV download)
+- "Reset filters" button and an "Active filters" summary
+- Dark mode toggle (affects background, text, and Plotly chart styling)
 
 ## Quickstart (Windows PowerShell)
 
