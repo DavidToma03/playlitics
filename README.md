@@ -1,4 +1,4 @@
-#Playlitics
+# Playlitics
 
 An interactive dashboard for exploring a synthetic video games dataset (or your own).
 
